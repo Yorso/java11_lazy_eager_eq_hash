@@ -3,8 +3,6 @@ package com.jorge.client;
 
 import java.util.Set;
 
-import javax.persistence.FetchType;
-
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;

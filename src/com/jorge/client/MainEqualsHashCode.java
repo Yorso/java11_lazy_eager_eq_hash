@@ -9,7 +9,6 @@ import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
-import com.jorge.entity.Guide;
 import com.jorge.entity.Student;
 import com.jorge.util.HibernateUtil;
 
