@@ -6,6 +6,7 @@ import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -33,7 +34,27 @@ public class Student {
 	//@Column(name="name") // If we comment @Column annotation, Hibernate will create this column with the name of this attribute => "name" (CASE SENSITIVE!!!)
 	private String name;
 	
-	// By default, single point associations (@OneToOne and @ManyToOne) are eagerly fetched
+	/**
+	 *  By default, single point associations (@OneToOne and @ManyToOne) are eagerly fetched
+	 *  
+	 *  N + 1 Select problem is:
+	 *  	1. Its strategy is FetchType.EAGER
+	 *  	2. Its query to get student infos is: 
+	 *  			Query query = em.createQuery("select student from Student student"); => this query loads guide data too but we only want to get student data
+	 *  	3. These things make a N + 1 small SELECT statements
+	 *  			One huge SELECT to get students (1)
+	 *  			One SELECT per row (small select per row) to get guide info => i.e.: 5 rows in Guide table, one select per row = 5 selects in total = N 
+	 *  			This is N (N = number of rows in guide table) + 1 (1 select to get student info) Selects problem
+	 *  
+	 *  To avoid N + 1 Selects problem (just 1 SELECT and not N + 1 SELECTS):
+	 *		1. Change strategy of the single point associations from FetchType.EAGER to FetchType.LAZY
+	 *		2. Write the query based on the requirements (e.g. using left fetch join to load the child (guide entity in this case) objects eagerly)
+	 *			     Query query = em.createQuery("select student from Student student left fetch join student.guide");
+	 *		
+	 *
+	 *	If the number of students becomes too large in DB, we may to want to consider the strategy called Batch Fetching (Check Guide.java)
+	 *
+	 */
 	@ManyToOne(cascade={CascadeType.PERSIST, CascadeType.REMOVE}) // Many students to one guide. 
 																  // CascadeType.PERSIST: Everything you change in student row is save in its linked guide row automatically
 																  // CascadeType.REMOVE: If you delete a student row, it will delete its linked guide row automatically

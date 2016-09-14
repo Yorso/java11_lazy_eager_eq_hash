@@ -17,6 +17,36 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name="guide")
+//@BatchSize(size=4)
+/**
+ * Batch Fetching:
+ * 
+ * @BatchSize(size=4) => Fetch strategy must be "fetch=FetchType.LAZY" in Guide.java (here). If we want to get a student information and their guide info, it loads their guide information
+ * and the next 3 guide informations (of other students) with just a select statement (select guide from Guide guide where guide.id in (?,?,?,?))
+ *  
+ * One SELECT statement loads 4 Guide objects. In the next select statement will load 4 Guide objects more
+ *  
+ * It is useful if the number of students becomes too large in DB (i.e.: one guide per student)
+ *  
+ * Depending of the size of the application, we can optimize the lazy fetching strategy to improbe the performance of the application
+ * by the value of the @BatchSize
+ *
+ * I.e.: one guide per student:
+ * 		Without @BatchSize: 1 SELECT to get 1000 different student info
+ * 			  	 	        1000 SELECT to get 1000 different guide info
+ * 
+ * 		With @BatchSize(size=4): 1 SELECT to get 1000 different student info
+ * 							     1000/4 SELECT to get 1000 different guide info. 4 associated Guide objects are loaded in a batch of 4 by 1 SELECT
+ * 
+ * Using Batch Fetching, Hibernate can load several uninitialized proxies, even if just one proxy is accessed
+ * 
+ * Batch fetching is an optimization of the Lazy Fetching strategy
+ * 
+ * Batch Feching is not valid in Student.java
+ * 
+ * @BatchSize is imported from org.hibernate.annotations.BatchSize
+ * 
+ */
 public class Guide {
 
 	@Id
